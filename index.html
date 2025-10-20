@@ -81,4 +81,52 @@
     ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
   </script>
 </body>
+  <script>
+  // ✅ URL del backend en Replit (sin :3000)
+  const BACKEND_URL = "https://61027836-a85e-4400-b1b1-f2300d02f0e1-00-2iigq33coeins.spock.replit.dev";
+
+  // Llama a tu backend, crea la preferencia y redirige al Checkout de Mercado Pago
+  async function pagarConMercadoPago({ cart, productsById, currentUser }) {
+    try {
+      const lines = (cart || [])
+        .filter(i => Number(i.kilos) > 0)
+        .map(i => ({
+          productId: (productsById[i.id] && productsById[i.id].id) || i.id,
+          name:      (productsById[i.id] && productsById[i.id].name) || "Producto",
+          kg:        Number(i.kilos) || 0,
+          unitPrice: (productsById[i.id] && productsById[i.id].pricePerKg) || 0
+        }));
+
+      if (!lines.length) {
+        alert("Agregá al menos 1 producto.");
+        return;
+      }
+
+      const r = await fetch(`${BACKEND_URL}/api/checkout/preference`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lines,
+          metadata: { email: (currentUser && currentUser.email) || "" }
+        })
+      });
+
+      const data = await r.json();
+      if (data && data.init_point) {
+        // ✅ redirige al checkout de Mercado Pago
+        window.location.href = data.init_point;
+      } else {
+        console.error("Respuesta MP:", data);
+        alert("No se pudo crear el pago. Probá de nuevo.");
+      }
+    } catch (err) {
+      console.error(err);
+      if (String(err).includes("CORS")) {
+        alert("Bloqueo CORS. Verificá ALLOWED_ORIGIN en el backend y reinicialo.");
+      } else {
+        alert("Error iniciando el pago.");
+      }
+    }
+  }
+  </script>
 </html>
