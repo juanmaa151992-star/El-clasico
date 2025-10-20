@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="es">
 <head>
@@ -13,9 +12,10 @@
   <style>
     body { font-family: Inter, system-ui, sans-serif; }
     .card { background: white; border-radius: 1rem; padding: 1rem; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
-    .btn { padding: .5rem 1rem; border-radius: .75rem; font-weight: 600; }
+    .btn { padding: .5rem 1rem; border-radius: .75rem; font-weight: 600; cursor: pointer; border: none; }
     .btn-primary { background: black; color: white; }
     .btn-ghost { background: #eee; }
+    .btn-success { background: #10b981; color: white; }
     .input { width: 100%; border: 1px solid #ccc; border-radius: .75rem; padding: .5rem; }
     .label { font-size: .875rem; color: #666; margin-bottom: .25rem; display: block; }
   </style>
@@ -28,6 +28,7 @@
     const formatARS = n => n.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 });
     const loadState = () => { try { return JSON.parse(localStorage.getItem(LS_KEY)) || null } catch { return null } };
     const saveState = (s) => localStorage.setItem(LS_KEY, JSON.stringify(s));
+    
     const initialState = {
       users: [{ id: 'admin', email: 'admin@elclasico.local', password: 'admin123', role: 'admin', points: 0 }],
       session: null,
@@ -43,90 +44,290 @@
       ],
       loyalty: { pesosPerPoint: 1000 },
       orders: [],
+      cart: [],
     };
+
     function App() {
       const [store, setStore] = useState(() => loadState() || initialState);
       useEffect(() => saveState(store), [store]);
       const currentUser = useMemo(() => store.users.find(u => store.session && u.id === store.session.userId) || null, [store]);
       const signOut = () => setStore(s => ({ ...s, session: null }));
-      return (<div className="space-y-4"><Header currentUser={currentUser} onSignOut={signOut}/>
-        {!currentUser ? (<Auth onLogin={u => setStore(s => ({ ...s, session: { userId: u.id } }))}
-          onRegister={u => setStore(s => ({ ...s, users: [...s.users, u], session: { userId: u.id } }))}/>) :
-          currentUser.role==='admin'?<AdminPanel store={store} setStore={setStore}/>:
-          <Shop store={store} setStore={setStore} currentUser={currentUser}/>}
-        <Footer/></div>);
+      
+      return (
+        <div className="space-y-4">
+          <Header currentUser={currentUser} onSignOut={signOut}/>
+          {!currentUser ? (
+            <Auth 
+              onLogin={u => setStore(s => ({ ...s, session: { userId: u.id } }))}
+              onRegister={u => setStore(s => ({ ...s, users: [...s.users, u], session: { userId: u.id } }))}
+            />
+          ) : currentUser.role === 'admin' ? (
+            <AdminPanel store={store} setStore={setStore}/>
+          ) : (
+            <Shop store={store} setStore={setStore} currentUser={currentUser}/>
+          )}
+          <Footer/>
+        </div>
+      );
     }
-    function Header({currentUser,onSignOut}){return(<div className="flex items-center justify-between">
-      <h2 className="text-2xl font-bold">EL CLÁSICO MVP</h2>
-      {currentUser?
-        <div className="text-sm flex gap-2 items-center"><span>{currentUser.email}</span>
-          <button className="btn btn-ghost" onClick={onSignOut}>Salir</button></div>:
-        <span className="text-sm text-gray-600">Ingresá o registrate</span>}
-    </div>)}
-    function Auth({onLogin,onRegister}){const[isLogin,setIsLogin]=useState(true);const[email,setEmail]=useState('');const[password,setPassword]=useState('');
-      const submit=()=>{const s=loadState()||initialState;if(isLogin){const u=s.users.find(u=>u.email===email&&u.password===password);
-        if(u)onLogin(u);else alert('Usuario o contraseña incorrectos');}else{if(!email||!password)return alert('Completá email y contraseña');
-        if(s.users.some(u=>u.email===email))return alert('Ese email ya existe');const id=email.toLowerCase();
-        const u={id,email,password,role:'cliente',points:0};onRegister(u);}};
-      return(<div className="card"><div className="flex gap-2 mb-4">
-        <button className={`btn ${isLogin?'btn-primary':'btn-ghost'}`}onClick={()=>setIsLogin(true)}>Ingresar</button>
-        <button className={`btn ${!isLogin?'btn-primary':'btn-ghost'}`}onClick={()=>setIsLogin(false)}>Crear cuenta</button></div>
-        <div className="mb-2"><label className="label">Email</label>
-          <input className="input"value={email}onChange={e=>setEmail(e.target.value)}/></div>
-        <div className="mb-4"><label className="label">Contraseña</label>
-          <input className="input"type="password"value={password}onChange={e=>setPassword(e.target.value)}/></div>
-        <button className="btn btn-primary w-full"onClick={submit}>{isLogin?'Ingresar':'Registrarme'}</button></div>)};
-    function Footer(){return<div className="text-center text-xs text-gray-500 py-6">
-      MVP local sin servidor — Próximo paso: Auth real + Base de datos + Mercado Pago</div>}
+
+    function Header({currentUser, onSignOut}) {
+      return (
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold">EL CLÁSICO MVP</h2>
+          {currentUser ? (
+            <div className="text-sm flex gap-2 items-center">
+              <span>{currentUser.email}</span>
+              <button className="btn btn-ghost" onClick={onSignOut}>Salir</button>
+            </div>
+          ) : (
+            <span className="text-sm text-gray-600">Ingresá o registrate</span>
+          )}
+        </div>
+      );
+    }
+
+    function Auth({onLogin, onRegister}) {
+      const [isLogin, setIsLogin] = useState(true);
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
+      
+      const submit = () => {
+        const s = loadState() || initialState;
+        if (isLogin) {
+          const u = s.users.find(u => u.email === email && u.password === password);
+          if (u) onLogin(u);
+          else alert('Usuario o contraseña incorrectos');
+        } else {
+          if (!email || !password) return alert('Completá email y contraseña');
+          if (s.users.some(u => u.email === email)) return alert('Ese email ya existe');
+          const id = email.toLowerCase().replace(/[^a-z0-9]/g, '-');
+          const u = { id, email, password, role: 'cliente', points: 0 };
+          onRegister(u);
+        }
+      };
+      
+      return (
+        <div className="card">
+          <div className="flex gap-2 mb-4">
+            <button className={`btn ${isLogin ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setIsLogin(true)}>Ingresar</button>
+            <button className={`btn ${!isLogin ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setIsLogin(false)}>Crear cuenta</button>
+          </div>
+          <div className="mb-2">
+            <label className="label">Email</label>
+            <input className="input" value={email} onChange={e => setEmail(e.target.value)}/>
+          </div>
+          <div className="mb-4">
+            <label className="label">Contraseña</label>
+            <input className="input" type="password" value={password} onChange={e => setPassword(e.target.value)}/>
+          </div>
+          <button className="btn btn-primary w-full" onClick={submit}>{isLogin ? 'Ingresar' : 'Registrarme'}</button>
+        </div>
+      );
+    }
+
+    function Shop({store, setStore, currentUser}) {
+      const [cart, setCart] = useState(store.cart || []);
+      
+      useEffect(() => {
+        setStore(s => ({ ...s, cart }));
+      }, [cart]);
+
+      const productsById = useMemo(() => {
+        return store.products.reduce((acc, p) => ({ ...acc, [p.id]: p }), {});
+      }, [store.products]);
+
+      const updateCart = (productId, kg) => {
+        setCart(prev => {
+          const existing = prev.find(item => item.id === productId);
+          if (existing) {
+            return prev.map(item => 
+              item.id === productId ? { ...item, kilos: kg } : item
+            ).filter(item => item.kilos > 0);
+          } else if (kg > 0) {
+            return [...prev, { id: productId, kilos: kg }];
+          }
+          return prev;
+        });
+      };
+
+      const subtotal = useMemo(() => {
+        return cart.reduce((sum, item) => {
+          const product = productsById[item.id];
+          return sum + (product ? product.pricePerKg * item.kilos : 0);
+        }, 0);
+      }, [cart, productsById]);
+
+      const handleCheckout = () => {
+        if (cart.length === 0) {
+          alert('Agregá productos al carrito');
+          return;
+        }
+        
+        if (typeof pagarConMercadoPago === 'function') {
+          pagarConMercadoPago({ cart, productsById, currentUser });
+        } else {
+          alert('Función de pago no disponible');
+        }
+      };
+
+      return (
+        <div className="space-y-4">
+          <div className="card">
+            <h3 className="text-lg font-bold mb-4">Productos</h3>
+            <div className="space-y-3">
+              {store.products.map(p => {
+                const cartItem = cart.find(item => item.id === p.id);
+                const kg = cartItem ? cartItem.kilos : 0;
+                
+                return (
+                  <div key={p.id} className="flex items-center justify-between border-b pb-3">
+                    <div>
+                      <div className="font-semibold">{p.name}</div>
+                      <div className="text-sm text-gray-600">{formatARS(p.pricePerKg)}/kg</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input 
+                        type="number" 
+                        min="0" 
+                        step="0.1"
+                        value={kg}
+                        onChange={e => updateCart(p.id, parseFloat(e.target.value) || 0)}
+                        className="input w-20 text-center"
+                        placeholder="kg"
+                      />
+                      <span className="text-sm text-gray-600">kg</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {cart.length > 0 && (
+            <div className="card">
+              <h3 className="text-lg font-bold mb-4">Carrito</h3>
+              <div className="space-y-2 mb-4">
+                {cart.map(item => {
+                  const product = productsById[item.id];
+                  if (!product) return null;
+                  const lineTotal = product.pricePerKg * item.kilos;
+                  
+                  return (
+                    <div key={item.id} className="flex justify-between text-sm">
+                      <span>{product.name} ({item.kilos} kg)</span>
+                      <span className="font-semibold">{formatARS(lineTotal)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="border-t pt-3 flex justify-between items-center">
+                <span className="text-lg font-bold">Total:</span>
+                <span className="text-2xl font-bold">{formatARS(subtotal)}</span>
+              </div>
+              <button 
+                className="btn btn-success w-full mt-4"
+                onClick={handleCheckout}
+              >
+                Pagar con MercadoPago
+              </button>
+            </div>
+          )}
+
+          <div className="card">
+            <div className="text-sm text-gray-600">
+              Puntos acumulados: <span className="font-bold">{currentUser.points}</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function AdminPanel({store, setStore}) {
+      return (
+        <div className="card">
+          <h3 className="text-lg font-bold mb-4">Panel de Administración</h3>
+          
+          <div className="mb-4">
+            <h4 className="font-semibold mb-2">Productos</h4>
+            <div className="space-y-2">
+              {store.products.map(p => (
+                <div key={p.id} className="flex justify-between text-sm border-b pb-2">
+                  <span>{p.name}</span>
+                  <span className="font-semibold">{formatARS(p.pricePerKg)}/kg</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <h4 className="font-semibold mb-2">Usuarios</h4>
+            <div className="text-sm text-gray-600">
+              Total de usuarios: {store.users.length}
+            </div>
+          </div>
+
+          <div>
+            <h4 className="font-semibold mb-2">Órdenes</h4>
+            <div className="text-sm text-gray-600">
+              Total de órdenes: {store.orders.length}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function Footer() {
+      return (
+        <div className="text-center text-xs text-gray-500 py-6">
+          MVP con MercadoPago integrado 🚀
+        </div>
+      );
+    }
+
     ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
   </script>
-</body>
+
   <script>
-  // ✅ URL del backend en Replit (sin :3000)
-  const BACKEND_URL = "https://61027836-a85e-4400-b1b1-f2300d02f0e1-00-2iigq33coeins.spock.replit.dev";
+    const BACKEND_URL = "https://61027836-a85e-4400-b1b1-f2300d02f0e1-00-2iigq33coeins.spock.replit.dev";
 
-  // Llama a tu backend, crea la preferencia y redirige al Checkout de Mercado Pago
-  async function pagarConMercadoPago({ cart, productsById, currentUser }) {
-    try {
-      const lines = (cart || [])
-        .filter(i => Number(i.kilos) > 0)
-        .map(i => ({
-          productId: (productsById[i.id] && productsById[i.id].id) || i.id,
-          name:      (productsById[i.id] && productsById[i.id].name) || "Producto",
-          kg:        Number(i.kilos) || 0,
-          unitPrice: (productsById[i.id] && productsById[i.id].pricePerKg) || 0
-        }));
+    async function pagarConMercadoPago({ cart, productsById, currentUser }) {
+      try {
+        const lines = (cart || [])
+          .filter(i => Number(i.kilos) > 0)
+          .map(i => ({
+            productId: (productsById[i.id] && productsById[i.id].id) || i.id,
+            name: (productsById[i.id] && productsById[i.id].name) || "Producto",
+            kg: Number(i.kilos) || 0,
+            unitPrice: (productsById[i.id] && productsById[i.id].pricePerKg) || 0
+          }));
 
-      if (!lines.length) {
-        alert("Agregá al menos 1 producto.");
-        return;
-      }
+        if (!lines.length) {
+          alert("Agregá al menos 1 producto.");
+          return;
+        }
 
-      const r = await fetch(`${BACKEND_URL}/api/checkout/preference`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          lines,
-          metadata: { email: (currentUser && currentUser.email) || "" }
-        })
-      });
+        const r = await fetch(`${BACKEND_URL}/api/checkout/preference`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            lines,
+            metadata: { email: (currentUser && currentUser.email) || "" }
+          })
+        });
 
-      const data = await r.json();
-      if (data && data.init_point) {
-        // ✅ redirige al checkout de Mercado Pago
-        window.location.href = data.init_point;
-      } else {
-        console.error("Respuesta MP:", data);
-        alert("No se pudo crear el pago. Probá de nuevo.");
-      }
-    } catch (err) {
-      console.error(err);
-      if (String(err).includes("CORS")) {
-        alert("Bloqueo CORS. Verificá ALLOWED_ORIGIN en el backend y reinicialo.");
-      } else {
-        alert("Error iniciando el pago.");
+        const data = await r.json();
+        if (data && data.init_point) {
+          window.location.href = data.init_point;
+        } else {
+          console.error("Respuesta MP:", data);
+          alert("No se pudo crear el pago. Probá de nuevo.");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Error iniciando el pago. Verificá la consola del navegador.");
       }
     }
-  }
   </script>
+</body>
 </html>
