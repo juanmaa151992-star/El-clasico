@@ -1,4 +1,4 @@
-Copiá y pegá este código completo en tu archivo index.html. Ya incluye la solución del bucket "avatares" y el selector de kilos/unidades para el stock:
+Tenés razón, no se actualizó el formulario. Como la versión en vivo sigue mostrando la interfaz anterior, te voy a pasar el código completo de nuevo con el selector de unidades. Asegurate de reemplazar todo el contenido de tu archivo para que el cambio aparezca.```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -8,7 +8,7 @@ Copiá y pegá este código completo en tu archivo index.html. Ya incluye la sol
 <title>El Clásico | Gestión</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{box-sizing:border-box}
+{box-sizing:border-box}
 body{margin:0;background:#111;color:white;font-family:Arial,sans-serif;padding-bottom:85px}
 header{padding:16px 18px;background:#1b1b1b;border-bottom:2px solid #f58220;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .logo{font-size:27px;font-weight:900}
@@ -31,7 +31,7 @@ button{cursor:pointer}
 input,select{width:100%;padding:13px;background:#292929;border:1px solid #555;color:white;border-radius:8px;margin:7px 0 14px;font-size:16px}
 label{font-size:13px;color:#bbb}
 .row{display:flex;gap:9px;align-items:center}
-.row>*{flex:1;min-width:0}
+.row>{flex:1;min-width:0}
 .product{background:#202020;border:1px solid #444;border-radius:12px;padding:14px;margin:12px 0}
 .product h3{margin:0 0 8px}
 .muted{color:#aaa;font-size:13px}
@@ -51,372 +51,331 @@ nav span{display:block;font-size:21px;margin-bottom:4px}
 </head>
 <body>
 <header>
-  <div>
-    <div class="logo">EL <span>CLÁSICO</span></div>
-    <small>Sistema de gestión comercial</small>
-  </div>
-  <button class="header-account" onclick="abrir('cuenta')">👤 Mi cuenta</button>
+<div>
+<div class="logo">EL <span>CLÁSICO</span></div>
+<small>Sistema de gestión comercial</small>
+</div>
+<button class="header-account" onclick="abrir('cuenta')">👤 Mi cuenta</button>
 </header>
-
 <div id="mensaje" role="status" aria-live="polite"></div>
-
 <main>
 <section id="inicio">
- <h2>Panel principal</h2>
- <div class="balance">
-  <small>VENTAS DE HOY</small>
-  <strong>$ 0,00</strong>
-  <small>Próximamente: resumen de ventas</small>
- </div>
- <div class="grid">
-  <button class="item" onclick="abrir('productos')"><span>📦</span><b>Productos</b></button>
-  <button class="item" onclick="abrir('productos')"><span>🏪</span><b>Inventario</b></button>
-  <button class="item" onclick="aviso('Módulo de ventas: próximo paso')"><span>🛒</span><b>Nueva venta</b></button>
-  <button class="item" onclick="aviso('Módulo de caja: próximo paso')"><span>💰</span><b>Abrir / cerrar caja</b></button>
-  <button class="item" onclick="aviso('Reportes: próximo paso')"><span>📊</span><b>Reportes</b></button>
-  <button class="item" onclick="aviso('Monitor de pagos: próximo paso')"><span>🔔</span><b>Monitor de pagos</b></button>
- </div>
- <div class="card" style="margin-top:22px">
-  <h3>Estado del negocio</h3>
-  <p id="estado" class="muted">Conectando con Supabase...</p>
- </div>
+<h2>Panel principal</h2>
+<div class="balance">
+<small>VENTAS DE HOY</small>
+<strong>$ 0,00</strong>
+<small>Próximamente: resumen de ventas</small>
+</div>
+<div class="grid">
+<button class="item" onclick="abrir('productos')"><span>📦</span><b>Productos</b></button>
+<button class="item" onclick="abrir('productos')"><span>🏪</span><b>Inventario</b></button>
+<button class="item" onclick="aviso('Módulo de ventas: próximo paso')"><span>🛒</span><b>Nueva venta</b></button>
+<button class="item" onclick="aviso('Módulo de caja: próximo paso')"><span>💰</span><b>Abrir / cerrar caja</b></button>
+<button class="item" onclick="aviso('Reportes: próximo paso')"><span>📊</span><b>Reportes</b></button>
+<button class="item" onclick="aviso('Monitor de pagos: próximo paso')"><span>🔔</span><b>Monitor de pagos</b></button>
+</div>
+<div class="card" style="margin-top:22px">
+<h3>Estado del negocio</h3>
+<p id="estado" class="muted">Conectando con Supabase...</p>
+</div>
 </section>
-
 <section id="productos" class="hidden">
- <div class="row">
-  <h2 style="flex:2">📦 Productos</h2>
-  <button class="btn" onclick="nuevoProducto()">+ Nuevo</button>
- </div>
- <input id="buscar" placeholder="Buscar producto..." oninput="mostrarProductos()">
- <div class="row">
-  <div class="card"><small class="muted">Productos cargados</small><h2 id="cantidad">0</h2></div>
-  <div class="card"><small class="muted">Stock bajo</small><h2 id="stockBajo" class="orange">0</h2></div>
- </div>
- <div id="lista"></div>
+<div class="row">
+<h2 style="flex:2">📦 Productos</h2>
+<button class="btn" onclick="nuevoProducto()">+ Nuevo</button>
+</div>
+<input id="buscar" placeholder="Buscar producto..." oninput="mostrarProductos()">
+<div class="row">
+<div class="card"><small class="muted">Productos cargados</small><h2 id="cantidad">0</h2></div>
+<div class="card"><small class="muted">Stock bajo</small><h2 id="stockBajo" class="orange">0</h2></div>
+</div>
+<div id="lista"></div>
 </section>
-
 <section id="formulario" class="hidden">
- <h2 id="tituloForm">Nuevo producto</h2>
- <form id="formProducto">
-  <input type="hidden" id="id">
-  <label>Nombre del producto</label>
-  <input id="nombre" required placeholder="Ej: Suprema de pollo">
-  <label>Categoría</label>
-  <select id="categoria">
-   <option>Granja</option><option>Pollería</option><option>Milanesas</option><option>Fiambres</option><option>Lácteos</option><option>Bebidas</option><option>Almacén</option><option>Otros</option>
-  </select>
-  <label>Costo ($)</label><input id="costo" type="number" min="0" step="0.01" required>
-  <label>Precio de venta ($)</label><input id="precio" type="number" min="0" step="0.01" required>
-  <label>Stock actual</label><input id="stock" type="number" min="0" step="0.001" required>
-  <label>Unidad de medida del stock</label>
-  <select id="unidadStock">
-   <option value="Unidades">Unidades</option>
-   <option value="Kilos">Kilos</option>
-  </select>
-  <label>Stock mínimo</label><input id="stockMinimo" type="number" min="0" step="0.001" value="0">
-  <div class="card">
-   <small class="muted">Ganancia por unidad</small><h2 id="ganancia" class="orange">$ 0</h2>
-   <small id="margen" class="muted">Margen: 0%</small>
-  </div>
-  <button class="btn" type="submit" id="guardar" style="width:100%">Guardar producto</button>
-  <button class="btn2" type="button" onclick="abrir('productos')" style="width:100%;margin-top:10px">Cancelar</button>
- </form>
+<h2 id="tituloForm">Nuevo producto</h2>
+<form id="formProducto">
+<input type="hidden" id="id">
+<label>Nombre del producto</label>
+<input id="nombre" required placeholder="Ej: Suprema de pollo">
+<label>Categoría</label>
+<select id="categoria">
+<option>Granja</option><option>Pollería</option><option>Milanesas</option><option>Fiambres</option><option>Lácteos</option><option>Bebidas</option><option>Almacén</option><option>Otros</option>
+</select>
+<label>Costo ()</label><input id="costo" type="number" min="0" step="0.01" required>
+<label>Precio de venta ()</label><input id="precio" type="number" min="0" step="0.01" required>
+<label>Stock actual</label><input id="stock" type="number" min="0" step="0.001" required>
+<label>Unidad de medida del stock</label>
+<select id="unidadStock">
+<option value="Unidades">Unidades</option>
+<option value="Kilos">Kilos</option>
+</select>
+<label>Stock mínimo</label><input id="stockMinimo" type="number" min="0" step="0.001" value="0">
+<div class="card">
+<small class="muted">Ganancia por unidad</small><h2 id="ganancia" class="orange">$ 0</h2>
+<small id="margen" class="muted">Margen: 0%</small>
+</div>
+<button class="btn" type="submit" id="guardar" style="width:100%">Guardar producto</button>
+<button class="btn2" type="button" onclick="abrir('productos')" style="width:100%;margin-top:10px">Cancelar</button>
+</form>
 </section>
-
 <section id="cuenta" class="hidden">
- <div class="row">
-  <h2 style="flex:2">👤 Mi cuenta</h2>
-  <button class="btn2" onclick="abrir('inicio')">Volver</button>
- </div>
- <div class="card">
-  <div class="profile-head">
-   <img id="avatarVista" class="avatar hidden" alt="Foto de perfil">
-   <div id="avatarInicial" class="avatar">👤</div>
-   <div><h3 id="nombreCuenta" style="margin:0 0 7px">Mi usuario</h3><div id="correoCuenta" class="muted"></div></div>
-  </div>
-  <label for="fotoPerfil">Foto de perfil</label>
-  <input id="fotoPerfil" type="file" accept="image/*">
-  <p class="muted">La imagen se guarda en el almacenamiento privado de tu cuenta.</p>
-  <label for="nombrePerfil">Nombre de usuario</label>
-  <input id="nombrePerfil" maxlength="60" placeholder="Tu nombre">
-  <label>Correo electrónico</label>
-  <input id="emailPerfil" type="email" disabled>
-  <div class="profile-actions">
-   <button class="btn" type="button" onclick="guardarPerfil()">Guardar cambios</button>
-   <button class="btn2" type="button" onclick="cargarPerfil()">Descartar</button>
-  </div>
- </div>
- <div class="card">
-  <h3>Seguridad</h3>
-  <p class="muted">La sesión permanece activa en este dispositivo hasta que cierres sesión.</p>
-  <button class="danger" type="button" onclick="cerrarSesion()">Cerrar sesión</button>
- </div>
+<div class="row">
+<h2 style="flex:2">👤 Mi cuenta</h2>
+<button class="btn2" onclick="abrir('inicio')">Volver</button>
+</div>
+<div class="card">
+<div class="profile-head">
+<img id="avatarVista" class="avatar hidden" alt="Foto de perfil">
+<div id="avatarInicial" class="avatar">👤</div>
+<div><h3 id="nombreCuenta" style="margin:0 0 7px">Mi usuario</h3><div id="correoCuenta" class="muted"></div></div>
+</div>
+<label for="fotoPerfil">Foto de perfil</label>
+<input id="fotoPerfil" type="file" accept="image/*">
+<p class="muted">La imagen se guarda en el almacenamiento privado de tu cuenta.</p>
+<label for="nombrePerfil">Nombre de usuario</label>
+<input id="nombrePerfil" maxlength="60" placeholder="Tu nombre">
+<label>Correo electrónico</label>
+<input id="emailPerfil" type="email" disabled>
+<div class="profile-actions">
+<button class="btn" type="button" onclick="guardarPerfil()">Guardar cambios</button>
+<button class="btn2" type="button" onclick="cargarPerfil()">Descartar</button>
+</div>
+</div>
+<div class="card">
+<h3>Seguridad</h3>
+<p class="muted">La sesión permanece activa en este dispositivo hasta que cierres sesión.</p>
+<button class="danger" type="button" onclick="cerrarSesion()">Cerrar sesión</button>
+</div>
 </section>
 </main>
-
 <nav>
- <button onclick="abrir('inicio')"><span>🏠</span>Inicio</button>
- <button onclick="aviso('Ventas: próximo módulo')"><span>🛒</span>Ventas</button>
- <button onclick="abrir('productos')"><span>📦</span>Stock</button>
- <button onclick="aviso('Reportes: próximo módulo')"><span>📊</span>Reportes</button>
+<button onclick="abrir('inicio')"><span>🏠</span>Inicio</button>
+<button onclick="aviso('Ventas: próximo módulo')"><span>🛒</span>Ventas</button>
+<button onclick="abrir('productos')"><span>📦</span>Stock</button>
+<button onclick="aviso('Reportes: próximo módulo')"><span>📊</span>Reportes</button>
 </nav>
-
 <script>
 const SUPABASE_URL = "https://ilrvodejrpqbvrtvzlcs.supabase.co";
 const SUPABASE_KEY = "sb_publishable_cPmC8XcKC5gERejo6wUaEQ_udFQ4q-h";
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
 let productos = [];
 let historialNavegacion = [];
 let urlFotoTemporal = null;
 const BUCKET_AVATARES = 'avatares';
-
 function aviso(t){
- const m=document.getElementById('mensaje');
- m.textContent=t;
- m.style.display='block';
- clearTimeout(window.avisoTimer);
- window.avisoTimer=setTimeout(()=>m.style.display='none',3000);
+const m=document.getElementById('mensaje');
+m.textContent=t;
+m.style.display='block';
+clearTimeout(window.avisoTimer);
+window.avisoTimer=setTimeout(()=>m.style.display='none',3000);
 }
-
 function pantallaActual(){
- return document.querySelector('main section:not(.hidden)');
+return document.querySelector('main section:not(.hidden)');
 }
-
 function mostrarPantalla(id, guardar=true){
- const actual=pantallaActual();
- if(guardar && actual && actual.id!==id){
-  historialNavegacion.push(actual.id);
-  history.pushState({app:true,pantalla:id},'',`#${id}`);
- }
- document.querySelectorAll('main section').forEach(s=>s.classList.add('hidden'));
- const destino=document.getElementById(id);
- if(destino) destino.classList.remove('hidden');
- window.scrollTo(0,0);
+const actual=pantallaActual();
+if(guardar && actual && actual.id!==id){
+historialNavegacion.push(actual.id);
+history.pushState({app:true,pantalla:id},'',#${id});
 }
-
+document.querySelectorAll('main section').forEach(s=>s.classList.add('hidden'));
+const destino=document.getElementById(id);
+if(destino) destino.classList.remove('hidden');
+window.scrollTo(0,0);
+}
 function volverPantalla(){
- if(historialNavegacion.length){
-  const anterior=historialNavegacion.pop();
-  mostrarPantalla(anterior,false);
- }else{
-  mostrarPantalla('inicio',false);
- }
+if(historialNavegacion.length){
+const anterior=historialNavegacion.pop();
+mostrarPantalla(anterior,false);
+}else{
+mostrarPantalla('inicio',false);
 }
-
+}
 history.replaceState({app:true,pantalla:'inicio'},'',location.pathname+location.search+'#inicio');
 history.pushState({app:true,raiz:true},'',location.pathname+location.search+'#app');
 window.addEventListener('popstate',()=>{
- if(historialNavegacion.length){
-  volverPantalla();
- }else{
-  mostrarPantalla('inicio',false);
-  history.pushState({app:true,raiz:true},'',location.pathname+location.search+'#app');
- }
+if(historialNavegacion.length){
+volverPantalla();
+}else{
+mostrarPantalla('inicio',false);
+history.pushState({app:true,raiz:true},'',location.pathname+location.search+'#app');
+}
 });
-
 function abrir(p){
- mostrarPantalla(p);
- if(p==='productos') cargarProductos();
- if(p==='cuenta') cargarPerfil();
+mostrarPantalla(p);
+if(p==='productos') cargarProductos();
+if(p==='cuenta') cargarPerfil();
 }
-
 async function conectar(){
- try{
-  const {error}=await db.from('productos').select('id').limit(1);
-  if(error) throw error;
-  document.getElementById('estado').textContent='Conectado correctamente con Supabase ✓';
- }catch(e){
-  document.getElementById('estado').textContent='Error de conexión: '+e.message;
- }
+try{
+const {error}=await db.from('productos').select('id').limit(1);
+if(error) throw error;
+document.getElementById('estado').textContent='Conectado correctamente con Supabase ✓';
+}catch(e){
+document.getElementById('estado').textContent='Error de conexión: '+e.message;
 }
-
+}
 async function cargarProductos(){
- const lista=document.getElementById('lista');
- lista.innerHTML='<p class="muted">Cargando productos...</p>';
- const {data,error}=await db.from('productos').select('*').order('nombre');
- if(error){lista.innerHTML='<p class="orange">Error: '+esc(error.message)+'</p>';return;}
- productos=data||[];
- mostrarProductos();
+const lista=document.getElementById('lista');
+lista.innerHTML='<p class="muted">Cargando productos...</p>';
+const {data,error}=await db.from('productos').select('*').order('nombre');
+if(error){lista.innerHTML='<p class="orange">Error: '+esc(error.message)+'</p>';return;}
+productos=data||[];
+mostrarProductos();
 }
-
 function esc(s){
- return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+return String(s??'').replace(/[&<>"']/g,c=>({'&':'&','<':'<','>':'>','"':'"',"'":'''})[c]);
 }
 function pesos(n){
- return Number(n||0).toLocaleString('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:2});
+return Number(n||0).toLocaleString('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:2});
 }
-
 function mostrarProductos(){
- const q=document.getElementById('buscar').value.toLowerCase();
- const filtrados=productos.filter(p=>(p.nombre||'').toLowerCase().includes(q)||(p.categoria||'').toLowerCase().includes(q));
- document.getElementById('cantidad').textContent=productos.length;
- document.getElementById('stockBajo').textContent=productos.filter(p=>Number(p.stock)<=Number(p.stock_minimo)).length;
- const lista=document.getElementById('lista');
- if(!filtrados.length){lista.innerHTML='<div class="card">No hay productos cargados.</div>';return;}
- lista.innerHTML=filtrados.map(p=>`
- <div class="product">
-  <div class="row"><div><h3>${esc(p.nombre)}</h3><small class="muted">${esc(p.categoria)}</small></div><strong class="orange">${pesos(p.precio)}</strong></div>
-  <p class="muted">Costo: ${pesos(p.costo)} · Stock: ${p.stock} ${p.unidad_medida||''}</p>
-  <p class="muted">Ganancia: ${pesos(Number(p.precio)-Number(p.costo))}</p>
-  ${Number(p.stock)<=Number(p.stock_minimo)?'<p class="orange">⚠ Stock bajo</p>':''}
-  <div class="row"><button class="btn2" onclick="editarProducto(${p.id})">Editar</button><button class="btn2" onclick="eliminarProducto(${p.id})">Eliminar</button></div>
- </div>`).join('');
+const q=document.getElementById('buscar').value.toLowerCase();
+const filtrados=productos.filter(p=>(p.nombre||'').toLowerCase().includes(q)||(p.categoria||'').toLowerCase().includes(q));
+document.getElementById('cantidad').textContent=productos.length;
+document.getElementById('stockBajo').textContent=productos.filter(p=>Number(p.stock)<=Number(p.stock_minimo)).length;
+const lista=document.getElementById('lista');
+if(!filtrados.length){lista.innerHTML='<div class="card">No hay productos cargados.</div>';return;}
+lista.innerHTML=filtrados.map(p=> <div class="product"> <div class="row"><div><h3>${esc(p.nombre)}</h3><small class="muted">${esc(p.categoria)}</small></div><strong class="orange">${pesos(p.precio)}</strong></div> <p class="muted">Costo: ${pesos(p.costo)} · Stock: ${p.stock} ${p.unidad_medida||''}</p> <p class="muted">Ganancia: ${pesos(Number(p.precio)-Number(p.costo))}</p> ${Number(p.stock)<=Number(p.stock_minimo)?'<p class="orange">⚠ Stock bajo</p>':''} <div class="row"><button class="btn2" onclick="editarProducto(${p.id})">Editar</button><button class="btn2" onclick="eliminarProducto(${p.id})">Eliminar</button></div> </div>).join('');
 }
-
 function nuevoProducto(){
- document.getElementById('formProducto').reset();
- document.getElementById('id').value='';
- document.getElementById('unidadStock').value='Unidades';
- document.getElementById('tituloForm').textContent='Nuevo producto';
- document.getElementById('guardar').textContent='Guardar producto';
- calcular();abrir('formulario');
+document.getElementById('formProducto').reset();
+document.getElementById('id').value='';
+document.getElementById('unidadStock').value='Unidades';
+document.getElementById('tituloForm').textContent='Nuevo producto';
+document.getElementById('guardar').textContent='Guardar producto';
+calcular();abrir('formulario');
 }
 function editarProducto(id){
- const p=productos.find(x=>x.id===id);if(!p)return;
- document.getElementById('id').value=p.id;
- document.getElementById('nombre').value=p.nombre;
- document.getElementById('categoria').value=p.categoria||'Otros';
- document.getElementById('costo').value=p.costo;
- document.getElementById('precio').value=p.precio;
- document.getElementById('stock').value=p.stock;
- document.getElementById('unidadStock').value=p.unidad_medida||'Unidades';
- document.getElementById('stockMinimo').value=p.stock_minimo;
- document.getElementById('tituloForm').textContent='Editar producto';
- document.getElementById('guardar').textContent='Actualizar producto';
- calcular();abrir('formulario');
+const p=productos.find(x=>x.id===id);if(!p)return;
+document.getElementById('id').value=p.id;
+document.getElementById('nombre').value=p.nombre;
+document.getElementById('categoria').value=p.categoria||'Otros';
+document.getElementById('costo').value=p.costo;
+document.getElementById('precio').value=p.precio;
+document.getElementById('stock').value=p.stock;
+document.getElementById('unidadStock').value=p.unidad_medida||'Unidades';
+document.getElementById('stockMinimo').value=p.stock_minimo;
+document.getElementById('tituloForm').textContent='Editar producto';
+document.getElementById('guardar').textContent='Actualizar producto';
+calcular();abrir('formulario');
 }
 async function eliminarProducto(id){
- if(!confirm('¿Seguro que querés eliminar este producto?'))return;
- const {error}=await db.from('productos').delete().eq('id',id);
- if(error){aviso('Error: '+error.message);return;}
- aviso('Producto eliminado');cargarProductos();
+if(!confirm('¿Seguro que querés eliminar este producto?'))return;
+const {error}=await db.from('productos').delete().eq('id',id);
+if(error){aviso('Error: '+error.message);return;}
+aviso('Producto eliminado');cargarProductos();
 }
 function calcular(){
- const c=Number(document.getElementById('costo').value)||0;
- const p=Number(document.getElementById('precio').value)||0;
- const g=p-c,m=p>0?(g/p)*100:0;
- document.getElementById('ganancia').textContent=pesos(g);
- document.getElementById('margen').textContent='Margen: '+m.toFixed(1)+'%';
+const c=Number(document.getElementById('costo').value)||0;
+const p=Number(document.getElementById('precio').value)||0;
+const g=p-c,m=p>0?(g/p)*100:0;
+document.getElementById('ganancia').textContent=pesos(g);
+document.getElementById('margen').textContent='Margen: '+m.toFixed(1)+'%';
 }
 ['costo','precio'].forEach(id=>document.getElementById(id).addEventListener('input',calcular));
-
 document.getElementById('formProducto').addEventListener('submit',async e=>{
- e.preventDefault();
- const id=document.getElementById('id').value;
- const producto={
-  nombre:document.getElementById('nombre').value.trim(),
-  categoria:document.getElementById('categoria').value,
-  costo:Number(document.getElementById('costo').value),
-  precio:Number(document.getElementById('precio').value),
-  stock:Number(document.getElementById('stock').value),
-  unidad_medida:document.getElementById('unidadStock').value,
-  stock_minimo:Number(document.getElementById('stockMinimo').value)||0,
-  activo:true
- };
- const btn=document.getElementById('guardar');
- btn.disabled=true;btn.textContent='Guardando...';
- try{
-  let resultado=id?await db.from('productos').update(producto).eq('id',id):await db.from('productos').insert(producto);
-  if(resultado.error)throw resultado.error;
-  aviso(id?'Producto actualizado':'Producto guardado correctamente');
-  abrir('productos');
- }catch(error){aviso('Error al guardar: '+error.message);}
- finally{btn.disabled=false;btn.textContent=id?'Actualizar producto':'Guardar producto';}
+e.preventDefault();
+const id=document.getElementById('id').value;
+const producto={
+nombre:document.getElementById('nombre').value.trim(),
+categoria:document.getElementById('categoria').value,
+costo:Number(document.getElementById('costo').value),
+precio:Number(document.getElementById('precio').value),
+stock:Number(document.getElementById('stock').value),
+unidad_medida:document.getElementById('unidadStock').value,
+stock_minimo:Number(document.getElementById('stockMinimo').value)||0,
+activo:true
+};
+const btn=document.getElementById('guardar');
+btn.disabled=true;btn.textContent='Guardando...';
+try{
+let resultado=id?await db.from('productos').update(producto).eq('id',id):await db.from('productos').insert(producto);
+if(resultado.error)throw resultado.error;
+aviso(id?'Producto actualizado':'Producto guardado correctamente');
+abrir('productos');
+}catch(error){aviso('Error al guardar: '+error.message);}
+finally{btn.disabled=false;btn.textContent=id?'Actualizar producto':'Guardar producto';}
 });
-
 async function cargarPerfil(){
- const {data,error}=await db.auth.getUser();
- if(error||!data.user){aviso('No se pudo obtener la cuenta');return;}
- const user=data.user;
- const nombre=user.user_metadata?.full_name||user.user_metadata?.name||'';
- document.getElementById('nombrePerfil').value=nombre;
- document.getElementById('nombreCuenta').textContent=nombre||'Mi usuario';
- document.getElementById('correoCuenta').textContent=user.email||'';
- document.getElementById('emailPerfil').value=user.email||'';
- document.getElementById('fotoPerfil').value='';
- const avatarVista=document.getElementById('avatarVista');
- const avatarInicial=document.getElementById('avatarInicial');
- if(urlFotoTemporal){URL.revokeObjectURL(urlFotoTemporal);urlFotoTemporal=null;}
- const avatarPath=user.user_metadata?.avatar_path;
- if(avatarPath){
-  const {data:foto,error:fotoError}=await db.storage.from(BUCKET_AVATARES).createSignedUrl(avatarPath,3600);
-  if(!fotoError&&foto?.signedUrl){
-   avatarVista.src=foto.signedUrl;
-   avatarVista.classList.remove('hidden');
-   avatarInicial.classList.add('hidden');
-   return;
-  }
- }
- avatarVista.classList.add('hidden');
- avatarInicial.classList.remove('hidden');
- avatarInicial.textContent=(nombre.trim().charAt(0)||'👤').toUpperCase();
+const {data,error}=await db.auth.getUser();
+if(error||!data.user){aviso('No se pudo obtener la cuenta');return;}
+const user=data.user;
+const nombre=user.user_metadata?.full_name||user.user_metadata?.name||'';
+document.getElementById('nombrePerfil').value=nombre;
+document.getElementById('nombreCuenta').textContent=nombre||'Mi usuario';
+document.getElementById('correoCuenta').textContent=user.email||'';
+document.getElementById('emailPerfil').value=user.email||'';
+document.getElementById('fotoPerfil').value='';
+const avatarVista=document.getElementById('avatarVista');
+const avatarInicial=document.getElementById('avatarInicial');
+if(urlFotoTemporal){URL.revokeObjectURL(urlFotoTemporal);urlFotoTemporal=null;}
+const avatarPath=user.user_metadata?.avatar_path;
+if(avatarPath){
+const {data:foto,error:fotoError}=await db.storage.from(BUCKET_AVATARES).createSignedUrl(avatarPath,3600);
+if(!fotoError&&foto?.signedUrl){
+avatarVista.src=foto.signedUrl;
+avatarVista.classList.remove('hidden');
+avatarInicial.classList.add('hidden');
+return;
 }
-
+}
+avatarVista.classList.add('hidden');
+avatarInicial.classList.remove('hidden');
+avatarInicial.textContent=(nombre.trim().charAt(0)||'👤').toUpperCase();
+}
 async function guardarPerfil(){
- const {data,error:userError}=await db.auth.getUser();
- if(userError||!data.user){aviso('No se pudo verificar la sesión');return;}
- const user=data.user;
- const nombre=document.getElementById('nombrePerfil').value.trim();
- if(!nombre){aviso('Ingresá un nombre para la cuenta');return;}
- let avatarPath=user.user_metadata?.avatar_path||null;
- const archivo=document.getElementById('fotoPerfil').files[0];
- try{
-  if(archivo){
-   if(!archivo.type.startsWith('image/')){aviso('Elegí un archivo de imagen');return;}
-   if(archivo.size>5*1024*1024){aviso('La imagen no puede superar los 5 MB');return;}
-   const extension=(archivo.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
-   avatarPath=user.id+'/avatar.'+extension;
-   const {error:uploadError}=await db.storage.from(BUCKET_AVATARES).upload(avatarPath,archivo,{upsert:true,contentType:archivo.type});
-   if(uploadError)throw uploadError;
-  }
-  const {error:updateError}=await db.auth.updateUser({data:{full_name:nombre,avatar_path:avatarPath}});
-  if(updateError)throw updateError;
-  aviso('Cuenta actualizada correctamente');
-  await cargarPerfil();
- }catch(e){
-  aviso('No se pudo guardar: '+e.message);
- }
+const {data,error:userError}=await db.auth.getUser();
+if(userError||!data.user){aviso('No se pudo verificar la sesión');return;}
+const user=data.user;
+const nombre=document.getElementById('nombrePerfil').value.trim();
+if(!nombre){aviso('Ingresá un nombre para la cuenta');return;}
+let avatarPath=user.user_metadata?.avatar_path||null;
+const archivo=document.getElementById('fotoPerfil').files[0];
+try{
+if(archivo){
+if(!archivo.type.startsWith('image/')){aviso('Elegí un archivo de imagen');return;}
+if(archivo.size>510241024){aviso('La imagen no puede superar los 5 MB');return;}
+const extension=(archivo.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
+avatarPath=user.id+'/avatar.'+extension;
+const {error:uploadError}=await db.storage.from(BUCKET_AVATARES).upload(avatarPath,archivo,{upsert:true,contentType:archivo.type});
+if(uploadError)throw uploadError;
 }
-
+const {error:updateError}=await db.auth.updateUser({data:{full_name:nombre,avatar_path:avatarPath}});
+if(updateError)throw updateError;
+aviso('Cuenta actualizada correctamente');
+await cargarPerfil();
+}catch(e){
+aviso('No se pudo guardar: '+e.message);
+}
+}
 async function cerrarSesion(){
- if(!confirm('¿Querés cerrar la sesión de El Clásico?'))return;
- const {error}=await db.auth.signOut();
- if(error){aviso('No se pudo cerrar sesión: '+error.message);return;}
- location.reload();
+if(!confirm('¿Querés cerrar la sesión de El Clásico?'))return;
+const {error}=await db.auth.signOut();
+if(error){aviso('No se pudo cerrar sesión: '+error.message);return;}
+location.reload();
 }
-
 async function iniciarSesion(){
- const {data,error}=await db.auth.getSession();
- if(error){alert('Error de conexión: '+error.message);return;}
- if(data.session){conectar();return;}
- const pantalla=document.createElement('div');
- pantalla.id='pantallaLogin';
- pantalla.style.cssText='position:fixed;inset:0;background:#111;color:white;z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;font-family:Arial';
- pantalla.innerHTML=`
- <div style="background:#202020;border:1px solid #444;border-radius:18px;padding:25px;width:100%;max-width:380px">
-  <h2 style="color:#f58220;margin-top:0">EL CLÁSICO</h2><p>Ingresá a tu sistema de cobros</p>
-  <form id="formLogin">
-   <label>Correo electrónico</label><input id="loginEmail" type="email" required autocomplete="username" placeholder="Tu correo">
-   <label>Contraseña</label><input id="loginPassword" type="password" required autocomplete="current-password" placeholder="Tu contraseña">
-   <button id="btnLogin" type="submit" class="btn" style="width:100%">INGRESAR</button>
-   <p id="errorLogin" style="color:#ff7777"></p>
-  </form>
- </div>`;
- document.body.appendChild(pantalla);
- document.getElementById('formLogin').addEventListener('submit',async e=>{
-  e.preventDefault();
-  const boton=document.getElementById('btnLogin'),mensaje=document.getElementById('errorLogin');
-  boton.disabled=true;boton.textContent='Ingresando...';mensaje.textContent='';
-  const {error}=await db.auth.signInWithPassword({
-   email:document.getElementById('loginEmail').value.trim(),
-   password:document.getElementById('loginPassword').value
-  });
-  if(error){mensaje.textContent=error.message;boton.disabled=false;boton.textContent='INGRESAR';return;}
-  location.reload();
- });
+const {data,error}=await db.auth.getSession();
+if(error){alert('Error de conexión: '+error.message);return;}
+if(data.session){conectar();return;}
+const pantalla=document.createElement('div');
+pantalla.id='pantallaLogin';
+pantalla.style.cssText='position:fixed;inset:0;background:#111;color:white;z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;font-family:Arial';
+pantalla.innerHTML= <div style="background:#202020;border:1px solid #444;border-radius:18px;padding:25px;width:100%;max-width:380px"> <h2 style="color:#f58220;margin-top:0">EL CLÁSICO</h2><p>Ingresá a tu sistema de cobros</p> <form id="formLogin"> <label>Correo electrónico</label><input id="loginEmail" type="email" required autocomplete="username" placeholder="Tu correo"> <label>Contraseña</label><input id="loginPassword" type="password" required autocomplete="current-password" placeholder="Tu contraseña"> <button id="btnLogin" type="submit" class="btn" style="width:100%">INGRESAR</button> <p id="errorLogin" style="color:#ff7777"></p> </form> </div>;
+document.body.appendChild(pantalla);
+document.getElementById('formLogin').addEventListener('submit',async e=>{
+e.preventDefault();
+const boton=document.getElementById('btnLogin'),mensaje=document.getElementById('errorLogin');
+boton.disabled=true;boton.textContent='Ingresando...';mensaje.textContent='';
+const {error}=await db.auth.signInWithPassword({
+email:document.getElementById('loginEmail').value.trim(),
+password:document.getElementById('loginPassword').value
+});
+if(error){mensaje.textContent=error.message;boton.disabled=false;boton.textContent='INGRESAR';return;}
+location.reload();
+});
 }
-
 iniciarSesion();
 </script>
 </body>
